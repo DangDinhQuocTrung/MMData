@@ -122,7 +122,7 @@ class Animator:
         return
 
     def animate(self, timestamp, output_dir):
-        vertices = self.geometry.vertices
+        vertices = self.geometry.vertices.copy()
         # capture model in animation
         if timestamp > 0.0:
             frame_vpd = self.animation.get_frame_vpd(timestamp)

@@ -112,7 +112,7 @@ class AnimationClipBuilder:
         return tracks
 
     @classmethod
-    def __build_morph_animation(cls, vmd, geometry, skeleton):
+    def __build_morph_animation(cls, vmd, geometry):
         tracks = []
         morphs = dict()
 
@@ -145,5 +145,5 @@ class AnimationClipBuilder:
     @classmethod
     def from_vmd_and_skeleton(cls, vmd, geometry, skeleton):
         skeletal_tracks: List[AnimationTrack] = cls.__build_skeletal_animation(vmd, skeleton)
-        morph_tracks: List[AnimationTrack] = cls.__build_morph_animation(vmd, geometry, skeleton)
+        morph_tracks: List[AnimationTrack] = cls.__build_morph_animation(vmd, geometry)
         return AnimationClip(skeletal_tracks + morph_tracks)

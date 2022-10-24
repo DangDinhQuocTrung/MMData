@@ -1,5 +1,6 @@
 import numpy as np
 import mmdata.utils.quaternion_utils as quaternion_utils
+from typing import List
 from mmdata.configs.bone_dictionary import bone_jp_to_eng_converter
 
 
@@ -22,6 +23,7 @@ class Bone:
         self.position = self.rest_position
         self.quaternion = self.rest_quaternion
         self.scale = self.rest_scale
+        self.matrix = self.compute_local_matrix()
 
     def compute_local_matrix(self):
         p = self.position
@@ -75,7 +77,7 @@ class Bone:
 
 
 class Skeleton:
-    def __init__(self, bones, top_most):
+    def __init__(self, bones: List[Bone], top_most: List[Bone]):
         self.bones = bones
         self.top_most = top_most
         self.bone_inverses = None
@@ -89,10 +91,13 @@ class Skeleton:
 
         for i in range(0, len(self.bones)):
             self.bones[i].rest_pose()
-            self.bones[i].update_matrix_world()
+
+        for top_bone in self.top_most:
+            top_bone.update_matrix_world()
+
+        for i in range(0, len(self.bones)):
             inverse = np.linalg.inv(self.bones[i].matrix_world)
             bone_inverses.append(inverse)
-
         self.bone_inverses = np.stack(bone_inverses, axis=0)
 
         for bone in self.bones:
