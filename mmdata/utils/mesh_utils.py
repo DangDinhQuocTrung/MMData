@@ -5,10 +5,10 @@ import trimesh
 def save_obj_mesh(mesh_path, verts, faces):
     file = open(mesh_path, "w")
     for v in verts:
-        file.write("v %.4f %.4f %.4f\n" % (v[0], v[1], v[2]))
+        file.write(f"v {v[0]:4f} {v[1]:4f} {v[2]:4f}\n")
     for f in faces:
         f_plus = f + 1
-        file.write("f %d %d %d\n" % (f_plus[0], f_plus[1], f_plus[2]))
+        file.write(f"f {f_plus[0]:d} {f_plus[1]:d} {f_plus[2]:d}\n")
     file.close()
 
 
@@ -155,7 +155,7 @@ def compute_normal(vertices, faces):
     return norm
 
 
-def compute_tangent(vertices, faces, normals, uvs, faceuvs):
+def compute_tangent(vertices, faces, normals, uvs, face_uvs):
     # NOTE: this could be numerically unstable around [0,0,1]
     # but other current solutions are pretty freaky somehow
     c1 = np.cross(normals, np.array([0, 1, 0.0]))
@@ -163,6 +163,12 @@ def compute_tangent(vertices, faces, normals, uvs, faceuvs):
     normalize_v3(tan)
     btan = np.cross(normals, tan)
     return tan, btan
+
+
+def get_mesh_geometry(mesh):
+    if isinstance(mesh, trimesh.Scene):
+        return mesh.geometry
+    return {"all": mesh}
 
 
 def merge_scene_to_mesh(scene):
@@ -180,12 +186,6 @@ def merge_scene_to_mesh(scene):
 
 
 def display_mesh(mesh):
-    if isinstance(mesh, trimesh.Scene):
-        scene = mesh
-        for geometry in scene.geometry.values():
-            geometry.vertices[..., 2] = -geometry.vertices[..., 2]
-        scene.show()
-    else:
-        mesh.vertices[..., 2] = -mesh.vertices[..., 2]
-        mesh.show()
-    return
+    for geometry in get_mesh_geometry(mesh).values():
+        geometry.vertices[..., 2] = -geometry.vertices[..., 2]
+    mesh.show()

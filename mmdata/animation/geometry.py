@@ -3,24 +3,24 @@ from mmdata.animation.skeleton import Bone
 
 
 class Geometry:
-    def __init__(self, mmd):
+    def __init__(self, pmx):
         # read core attributes
-        self.vertices = np.stack([[v.position.x, v.position.y, -v.position.z] for v in mmd.vertices], axis=0)
-        self.normals = np.stack([[v.normal.x, v.normal.y, v.normal.z] for v in mmd.vertices], axis=0)
-        self.uvs = np.stack([[v.uv.x, v.uv.y] for v in mmd.vertices], axis=0)
-        self.faces = np.array([mmd.indices[i:(i + 3)] for i in range(0, len(mmd.indices), 3)])
+        self.vertices = np.stack([[v.position.x, v.position.y, -v.position.z] for v in pmx.vertices], axis=0)
+        self.normals = np.stack([[v.normal.x, v.normal.y, v.normal.z] for v in pmx.vertices], axis=0)
+        self.uvs = np.stack([[v.uv.x, v.uv.y] for v in pmx.vertices], axis=0)
+        self.faces = np.array([pmx.indices[i:(i + 3)] for i in range(0, len(pmx.indices), 3)])
 
         # bones
         self.bones = []
         self.bone_type_table = dict()
 
-        for body in mmd.rigidbodies:
+        for body in pmx.rigidbodies:
             value = body.mode
             if body.bone_index in self.bone_type_table:
                 value = max(body.mode, self.bone_type_table.get(body.bone_index))
             self.bone_type_table[body.bone_index] = value
 
-        for bone_index, bone in enumerate(mmd.bones):
+        for bone_index, bone in enumerate(pmx.bones):
             out_bone = {
                 "index": bone_index,
                 "transformation_class": bone.layer,
@@ -32,7 +32,7 @@ class Geometry:
                 "rigid_body_type": self.bone_type_table.get(bone_index, -1),
             }
             if bone.parent_index != -1:
-                parent_bone = mmd.bones[bone.parent_index]
+                parent_bone = pmx.bones[bone.parent_index]
                 parent_pos = np.array([parent_bone.position.x, parent_bone.position.y, -parent_bone.position.z])
                 out_bone["pos"] -= parent_pos
             self.bones.append(out_bone)
@@ -40,7 +40,7 @@ class Geometry:
         # ik
         self.iks = []
 
-        for bone_index, bone in enumerate(mmd.bones):
+        for bone_index, bone in enumerate(pmx.bones):
             if bone.ik is None:
                 continue
 
@@ -71,7 +71,7 @@ class Geometry:
         self.grants = []
         root_entry = {"parent": None, "children": [], "grant_param": None, "visited": False}
 
-        for bone_index, bone in enumerate(mmd.bones):
+        for bone_index, bone in enumerate(pmx.bones):
             if bone.getExternalRotationFlag() or bone.getExternalTranslationFlag():
                 grant_param = {
                     "index": bone_index,
@@ -108,10 +108,10 @@ class Geometry:
         self.morph_target_influences = []
         self.morph_target_dict = dict()
 
-        for morph in mmd.morphs:
+        for morph in pmx.morphs:
             params = {"name": morph.name}
             attribute = {
-                "array": np.zeros([len(mmd.vertices), 3], dtype=np.float32),
+                "array": np.zeros([len(pmx.vertices), 3], dtype=np.float32),
                 "name": morph.name,
             }
 
@@ -120,7 +120,7 @@ class Geometry:
 
             if morph.morph_type == 0:
                 for offset in morph.offsets:
-                    morph2 = mmd.morphs[offset.morph_index]
+                    morph2 = pmx.morphs[offset.morph_index]
                     if morph2.morph_type == 1:
                         for offset2 in morph2.offsets:
                             i = offset2.vertex_index
@@ -151,7 +151,7 @@ class Geometry:
                 self.__traverse_grant(child)
         return
 
-    def get_bone_hierarchy(self):
+    def get_bone_hierarchy(self) -> ([Bone], [Bone]):
         bones = []
         top_most = []
 

@@ -1,10 +1,13 @@
 import numpy as np
 from typing import List
 from mmdata.animation.animation_track import AnimationTrack, SkeletalTrack, MorphTrack
+from mmdata.animation.interpolation import InterpolationMethod, BezierInterpolationMethod
+from mmdata.animation.geometry import Geometry
+from mmdata.animation.skeleton import Skeleton
 
 
-class FrameVPD:
-    def __init__(self, frame_interpolation):
+class FramePoseData:
+    def __init__(self, frame_interpolation: dict):
         self.poses = dict()
 
         for track_name, value in frame_interpolation.items():
@@ -31,7 +34,7 @@ class AnimationClip:
     def __init__(self, tracks: List[AnimationTrack]):
         self.tracks = tracks
 
-    def get_frame_vpd(self, t):
+    def get_frame_pose_data(self, t: float) -> FramePoseData:
         frame_interpolation = dict()
 
         for track in self.tracks:
@@ -47,12 +50,19 @@ class AnimationClip:
             frame_interpolation[track.name] = track.get_value(bigger_index - 1, bigger_index, t)
 
         # convert to VPD
-        return FrameVPD(frame_interpolation)
+        return FramePoseData(frame_interpolation)
 
 
 class AnimationClipBuilder:
-    @classmethod
-    def __build_skeletal_animation(cls, vmd, skeleton):
+    def __init__(self):
+        # only Bezier is supported at the moment
+        self.interpolation_method = BezierInterpolationMethod()
+        self.tracks: [AnimationTrack] = []
+
+    def reset(self):
+        self.tracks = []
+
+    def __build_skeletal_animation(self, vmd, skeleton: Skeleton):
         bones = skeleton.bones
         bone_dict_name = dict()
         motions = dict()
@@ -106,13 +116,12 @@ class AnimationClipBuilder:
             r_interpolations = np.stack(r_interpolations, axis=0)
 
             # example name: ".bones[センター].quaternion"
-            key_name = ".bones[%s]" % bone_name
-            tracks.append(SkeletalTrack("%s.position" % key_name, times, positions, p_interpolations))
-            tracks.append(SkeletalTrack("%s.quaternion" % key_name, times, rotations, r_interpolations))
-        return tracks
+            key_name = f".bones[{bone_name}]"
+            tracks.append(SkeletalTrack(f"{key_name}.position", times, positions, p_interpolations, self.interpolation_method))
+            tracks.append(SkeletalTrack(f"{key_name}.quaternion", times, rotations, r_interpolations, self.interpolation_method))
+        self.tracks += tracks
 
-    @classmethod
-    def __build_morph_animation(cls, vmd, geometry):
+    def __build_morph_animation(self, vmd, geometry: Geometry):
         tracks = []
         morphs = dict()
 
@@ -138,12 +147,12 @@ class AnimationClipBuilder:
             values = np.array(values)
 
             tracks.append(MorphTrack(
-                ".morphTargetInfluences[%d]" % geometry.morph_target_dict[morph_name],
+                f".morphTargetInfluences[{geometry.morph_target_dict[morph_name]}]",
                 times, values))
-        return tracks
+        self.tracks += tracks
 
-    @classmethod
-    def from_vmd_and_skeleton(cls, vmd, geometry, skeleton):
-        skeletal_tracks: List[AnimationTrack] = cls.__build_skeletal_animation(vmd, skeleton)
-        morph_tracks: List[AnimationTrack] = cls.__build_morph_animation(vmd, geometry)
-        return AnimationClip(skeletal_tracks + morph_tracks)
+    def from_vmd_and_skeleton(self, vmd, geometry: Geometry, skeleton: Skeleton):
+        self.reset()
+        self.__build_skeletal_animation(vmd, skeleton)
+        self.__build_morph_animation(vmd, geometry)
+        return AnimationClip(self.tracks)

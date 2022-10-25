@@ -1,7 +1,7 @@
 import os
 
 
-def pmx_to_obj(mmd, geometry, vertices):
+def pmx_to_obj(pmx, geometry, vertices):
     # starting line
     output = "mtllib material.mtl\n\n"
 
@@ -22,7 +22,7 @@ def pmx_to_obj(mmd, geometry, vertices):
 
     face_start = 0
     # texture and face
-    for mat in mmd.materials:
+    for mat in pmx.materials:
         output += "o {:s}\n".format(mat.name)
         output += "usemtl {:s}\n".format(mat.name)
 
@@ -37,8 +37,9 @@ def pmx_to_obj(mmd, geometry, vertices):
 
 
 def pmx_to_mtl(pmx):
-    mtl_output = ""
     mat_dict = dict()
+    mtl_output = ""
+    texture_names = []
 
     for mat in pmx.materials:
         assert len(mat.name) > 0
@@ -60,6 +61,7 @@ def pmx_to_mtl(pmx):
 
         mtl_output += f"map_Ka {texture_basename}\n"
         mtl_output += f"map_Kd {texture_basename}\n"
-        mat_dict[texture_basename] = texture_name
+        mat_dict[mat.name] = texture_basename
+        texture_names.append(texture_name)
 
-    return mat_dict, mtl_output
+    return mat_dict, mtl_output, texture_names

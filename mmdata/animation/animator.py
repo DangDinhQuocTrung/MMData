@@ -33,16 +33,16 @@ class Animator:
 
         # read animation clip
         vmd = pymeshio.vmd.reader.read_from_file(vmd_path)
-        self.animation = AnimationClipBuilder.from_vmd_and_skeleton(vmd, self.geometry, self.skeleton)
+        self.animation = AnimationClipBuilder().from_vmd_and_skeleton(vmd, self.geometry, self.skeleton)
 
-    def __pose_skeleton_with_vpd(self, vpd, accumulative=False):
+    def __pose_skeleton_in_frame(self, pose_data, accumulative=False):
         bone_name_dict = dict()
         self.skeleton.rest_pose()
 
         for bone_index, bone in enumerate(self.skeleton.bones):
             bone_name_dict[bone.name] = bone_index
 
-        for pose_bone_name, pose in vpd.poses.items():
+        for pose_bone_name, pose in pose_data.poses.items():
             if isinstance(pose_bone_name, int):
                 self.geometry.morph_target_influences[pose_bone_name] = pose["influence"]
             else:
@@ -108,10 +108,11 @@ class Animator:
         vertices[:, 1] = vertices[:, 1] - 10.0
         return vertices
 
-    def copy_textures(self, mat_dict, output_dir):
+    def copy_textures(self, texture_names, output_dir):
         visited_textures = set()
-        for texture_basename, texture_name in mat_dict.items():
+        for texture_name in texture_names:
             texture_path = os.path.join(self.character_dir, texture_name)
+            texture_basename = os.path.basename(texture_name)
 
             if os.path.exists(texture_path) and (texture_path not in visited_textures):
                 visited_textures.add(texture_path)
@@ -121,12 +122,12 @@ class Animator:
                 texture_image.save(new_texture_path, quality=100)
         return
 
-    def animate(self, timestamp, output_dir):
+    def animate(self, timestamp: float, output_dir: str):
         vertices = self.geometry.vertices.copy()
         # capture model in animation
         if timestamp > 0.0:
-            frame_vpd = self.animation.get_frame_vpd(timestamp)
-            self.__pose_skeleton_with_vpd(frame_vpd, accumulative=False)
+            frame_pose_data = self.animation.get_frame_pose_data(timestamp)
+            self.__pose_skeleton_in_frame(frame_pose_data, accumulative=False)
             vertices = self.__pose_vertices_with_skeleton(vertices)
 
         # write object mesh
@@ -134,31 +135,31 @@ class Animator:
         with open(os.path.join(output_dir, f"{self.character_name}.obj"), "w+") as file:
             file.write(obj_content)
 
-        # write materials
-        mat_dict, mtl_output = pmx_utils.pmx_to_mtl(self.pmx)
-        with open(os.path.join(output_dir, "material.mtl"), "w+") as file:
-            file.write(mtl_output)
-
         # write bone
         bone_vertices = self.skeleton.get_bone_vertices()
         json.dump(bone_vertices, open(os.path.join(output_dir, "bone_vertices.json"), "w+", encoding="utf-8"), indent=4, ensure_ascii=False)
 
-        self.copy_textures(mat_dict, output_dir)
+        # write materials
+        mat_dict, mtl_output, texture_names = pmx_utils.pmx_to_mtl(self.pmx)
+        with open(os.path.join(output_dir, "material.mtl"), "w+") as file:
+            file.write(mtl_output)
+        self.copy_textures(texture_names, output_dir)
+        json.dump(mat_dict, open(os.path.join(output_dir, "material.json"), "w+", encoding="utf-8"), indent=4, ensure_ascii=False)
 
 
 def main():
-    output_dir = "/home/tyler/work/data/mmdata/output"
+    # Builder
+    output_dir = "/home/tyler/work/data/mmdata/mesh_output"
     animator = Animator(
         "/home/tyler/work/data/mmdata/test_data/Amber/Amber.pmx",
         "/home/tyler/work/data/mmdata/wavefile_v2.vmd")
 
+    output_dir = os.path.join(output_dir, f"Amber_step_50_model")
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
     animator.animate(50, output_dir)
     scene = trimesh.load(os.path.join(output_dir, "Amber.obj"))
-    mesh_utils.display_mesh(scene)
-
-    animator.animate(70, output_dir)
-    scene = trimesh.load(os.path.join(output_dir, "Amber.obj"))
-    mesh_utils.display_mesh(scene)
+    # mesh_utils.display_mesh(scene)
 
 
 if __name__ == "__main__":

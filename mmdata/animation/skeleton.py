@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import numpy as np
 import mmdata.utils.quaternion_utils as quaternion_utils
-from typing import List
 from mmdata.configs.bone_dictionary import bone_jp_to_eng_converter
 
 
@@ -61,7 +62,7 @@ class Bone:
         q = quaternion_utils.quaternion_from_rotation_matrix(temp_m)
         return position, q, scale
 
-    def add(self, child):
+    def add(self, child: Bone):
         self.children.append(child)
         child.parent = self
 
@@ -77,7 +78,7 @@ class Bone:
 
 
 class Skeleton:
-    def __init__(self, bones: List[Bone], top_most: List[Bone]):
+    def __init__(self, bones: [Bone], top_most: [Bone]):
         self.bones = bones
         self.top_most = top_most
         self.bone_inverses = None
