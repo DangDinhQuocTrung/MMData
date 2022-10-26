@@ -158,7 +158,7 @@ def main():
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
     animator.animate(50, output_dir)
-    scene = trimesh.load(os.path.join(output_dir, "Amber.obj"))
+    # scene = trimesh.load(os.path.join(output_dir, "Amber.obj"))
     # mesh_utils.display_mesh(scene)
 
 
