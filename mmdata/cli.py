@@ -34,18 +34,18 @@ To generate mesh reconstruction training data, use:
     subparsers = parser.add_subparsers(help="commands", dest="command")
 
     pose_parser = subparsers.add_parser("pose")
-    pose_parser.add_argument("--pmx", "-p", required=True, type=str, help="Path to the PMX model file.")
-    pose_parser.add_argument("--vmd", "-v", required=True, type=str, help="Path to the VMD motion file.")
-    pose_parser.add_argument("--timestamp", "-t", required=True, type=float, help="The timestamp in VMD file.")
-    pose_parser.add_argument("--output_dir", "-o", type=str, default=".", help="Path to output directory.")
-    pose_parser.add_argument("--no_display", action="store_true", help="Flag to prevent displaying the pose output.")
+    pose_parser.add_argument("--pmx", "-p", required=True, type=str, help="path to the PMX model file")
+    pose_parser.add_argument("--vmd", "-v", required=True, type=str, help="path to the VMD motion file")
+    pose_parser.add_argument("--timestamp", "-t", required=True, type=float, help="timestamp in VMD file")
+    pose_parser.add_argument("--output_dir", "-o", type=str, default=".", help="path to output directory")
+    pose_parser.add_argument("--no_display", action="store_true", help="flag to prevent displaying the pose output")
 
     gen_parser = subparsers.add_parser("gen")
-    gen_parser.add_argument("--pmx_dir", "-p", required=True, type=str, help="Path to the PMX directories.")
-    gen_parser.add_argument("--vmd", "-v", required=True, type=str, help="Path to the VMD motion file.")
-    gen_parser.add_argument("--mesh_dir", "-m", required=True, type=str, help="Path to the OBJ directories.")
-    gen_parser.add_argument("--image_dir", "-i", required=True, type=str, help="Path to the directory of output images.")
-    gen_parser.add_argument("--timestamp", "-t", required=True, type=float, help="The timestamp in VMD file.")
+    gen_parser.add_argument("--pmx_dir", "-p", required=True, type=str, help="path to the PMX directories")
+    gen_parser.add_argument("--vmd", "-v", required=True, type=str, help="path to the VMD motion file")
+    gen_parser.add_argument("--timestamp", "-t", required=True, type=float, help="timestamp in VMD file")
+    gen_parser.add_argument("--mesh_dir", "-m", required=True, type=str, help="path to the OBJ directories")
+    gen_parser.add_argument("--image_dir", "-i", required=True, type=str, help="path to the directory of output images")
 
     return parser.parse_args(argv)
 

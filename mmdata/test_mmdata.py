@@ -8,7 +8,7 @@ ASSETS_DIR = pathlib.Path(__file__).parent.parent.joinpath("assets")
 
 def test_animator():
     pmx_path = ASSETS_DIR.joinpath("pmx_data/A/A.pmx")
-    vmd_path = ASSETS_DIR.joinpath("pmx_data/walking.vmd")
+    vmd_path = ASSETS_DIR.joinpath("walking.vmd")
     gt_obj_path = ASSETS_DIR.joinpath("mesh_data/A.obj")
     output_dir = ASSETS_DIR.joinpath("output")
     timestamp = 10.0
