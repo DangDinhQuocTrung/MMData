@@ -25,7 +25,7 @@ def read_version():
 
 
 def read_requirements():
-    with open(os.path.join(__PATH__, "README.md")) as f:
+    with open(os.path.join(__PATH__, "requirements.txt")) as f:
         return f.read().split("\n")
     pass
 
@@ -76,6 +76,7 @@ class DeployCommand(Command):
 setup_requires = []
 
 install_requires = read_requirements()
+print(install_requires)
 
 tests_requires = [
     "mockito>=1.2.1",
