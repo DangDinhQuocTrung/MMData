@@ -140,7 +140,7 @@ def generate_data(args):
     return
 
 
-def main(args):
+def run_cli(args):
     if args.command == "pose":
         pose_pmx_model(args)
     elif args.command == "gen":
@@ -150,5 +150,9 @@ def main(args):
     return
 
 
+def main():
+    run_cli(parse_arguments(sys.argv[1:]))
+
+
 if __name__ == "__main__":
-    main(parse_arguments(sys.argv[1:]))
+    main()

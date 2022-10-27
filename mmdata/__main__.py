@@ -2,9 +2,8 @@
 mmdata.__main__ module
 """
 
-import sys
-from mmdata.cli import main, parse_arguments
+from mmdata.cli import main
 
 
 if __name__ == "__main__":
-    main(parse_arguments(sys.argv[1:]))
+    main()
