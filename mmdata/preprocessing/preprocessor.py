@@ -8,11 +8,20 @@ import mmdata.utils.prt_utils as prt_utils
 
 
 class Preprocessor:
+    """
+    Preprocessing has two steps:
+        normalization, so all vertices have values [0, 1]
+        computing PRT
+    """
     def __init__(self, n=40, order=2):
         self.n = n
         self.order = order
 
-    def compute_prt(self, mesh_path):
+    def compute_prt(self, mesh_path: str):
+        """
+        :param mesh_path:
+        :return: PRT file
+        """
         mesh = trimesh.load(mesh_path, file_type="obj", split_object=True)
         prt_dict, face_dict, out_dict = {}, {}, {}
 
@@ -84,7 +93,11 @@ class Preprocessor:
                 file.write("%s\n" % line)
         return
 
-    def normalize(self, mesh_path):
+    def normalize(self, mesh_path: str):
+        """
+        Normalize then save the mesh.
+        :param mesh_path:
+        """
         mesh = trimesh.load(mesh_path, file_type="obj", split_object=True)
         mesh_geometry_parts = []
 
@@ -103,7 +116,10 @@ class Preprocessor:
         scale = 1.0 / scale_inv * (0.75 + 0.5 * 0.15)
         self.__save_normalized_mesh(mesh_path, scale, offset[0])
 
-    def process(self, mesh_path):
+    def process(self, mesh_path: str):
+        """
+        :param mesh_path:
+        """
         self.normalize(mesh_path)
         out_dict = self.compute_prt(mesh_path)
 

@@ -5,18 +5,27 @@ from mmdata.animation.interpolation import InterpolationMethod
 
 
 class AnimationTrack(ABC):
-    def __init__(self, name, times, values):
+    def __init__(self, name: str, times: np.ndarray, values: np.ndarray):
         self.name = name
         self.times = times
         self.values = values
 
     @abstractmethod
-    def get_value(self, start_index, end_index, t) -> np.ndarray:
+    def get_value(self, start_index: int, end_index: int, t: float) -> np.ndarray:
+        """
+        Get correct in-between ratio.
+        :param start_index:
+        :param end_index:
+        :param t:
+        :return: value
+        """
         pass
 
 
 class SkeletalTrack(AnimationTrack):
-    def __init__(self, name, times, values, interpolations, interpolation_method: InterpolationMethod):
+    def __init__(
+            self, name: str, times: np.ndarray, values: np.ndarray,
+            interpolations: np.ndarray, interpolation_method: InterpolationMethod):
         assert values.shape[0] / times.shape[0] == 1.0
         assert interpolations.shape[0] % values.shape[0] == 0
         times, values, interpolations = self.__process_interpolations(times, values, interpolations)
@@ -25,7 +34,14 @@ class SkeletalTrack(AnimationTrack):
         self.interpolations = interpolations
         self.interpolation_method = interpolation_method
 
-    def __process_interpolations(self, times, values, interpolations):
+    def __process_interpolations(self, times: np.ndarray, values: np.ndarray, interpolations: np.ndarray):
+        """
+        Fix the interpolation timestamps to correct order.
+        :param times:
+        :param values:
+        :param interpolations:
+        :return: times, values, interpolations
+        """
         if times.shape[0] > 2:
             times = times.copy()
             values = values.copy()
@@ -51,7 +67,7 @@ class SkeletalTrack(AnimationTrack):
             interpolations = interpolations[:((index + 1) * interp_stride)]
         return times, values, interpolations
 
-    def get_value(self, start_index, end_index, t):
+    def get_value(self, start_index: int, end_index: int, t: float):
         start_time, end_time = self.times[start_index], self.times[end_index]
         start_value, end_value = self.values[start_index], self.values[end_index]
         ratio = (t - start_time) / (end_time - start_time)
@@ -80,7 +96,7 @@ class SkeletalTrack(AnimationTrack):
 
 
 class MorphTrack(AnimationTrack):
-    def get_value(self, start_index, end_index, t):
+    def get_value(self, start_index: int, end_index: int, t: float):
         start_time, end_time = self.times[start_index], self.times[end_index]
         start_value, end_value = self.values[start_index], self.values[end_index]
         ratio = (t - start_time) / (end_time - start_time)

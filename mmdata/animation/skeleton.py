@@ -6,7 +6,17 @@ from mmdata.configs.bone_dictionary import bone_jp_to_eng_converter
 
 
 class Bone:
-    def __init__(self, name, position, quaternion, scale):
+    """
+    Bone is a component of a big Skeleton.
+    Bone may have a parent and zero-N children.
+    """
+    def __init__(self, name: str, position: np.ndarray, quaternion: np.ndarray, scale: np.ndarray):
+        """
+        :param name:
+        :param position: (3,)
+        :param quaternion: (4,)
+        :param scale: (3,)
+        """
         self.name = name
         self.position = position
         self.quaternion = quaternion
@@ -63,6 +73,11 @@ class Bone:
         return position, q, scale
 
     def add(self, child: Bone):
+        """
+        Add a child Bone to the current Bone.
+        :param child:
+        :return:
+        """
         self.children.append(child)
         child.parent = self
 
@@ -78,6 +93,10 @@ class Bone:
 
 
 class Skeleton:
+    """
+    Skeleton is a hierarchy of Bones.
+    Some Bones are top-most bones, which do not have a parent.
+    """
     def __init__(self, bones: [Bone], top_most: [Bone]):
         self.bones = bones
         self.top_most = top_most

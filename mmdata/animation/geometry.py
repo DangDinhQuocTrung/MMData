@@ -3,6 +3,9 @@ from mmdata.animation.skeleton import Bone
 
 
 class Geometry:
+    """
+    Geometry of a PMX model: vertices, normals, faces, bones, grants, etc.
+    """
     def __init__(self, pmx):
         # read core attributes
         self.vertices = np.stack([[v.position.x, v.position.y, -v.position.z] for v in pmx.vertices], axis=0)

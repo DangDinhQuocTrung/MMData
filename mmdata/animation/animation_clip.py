@@ -7,7 +7,13 @@ from mmdata.animation.skeleton import Skeleton
 
 
 class FramePoseData:
+    """
+    FramePoseData consists of pose data corresponding to one timestamp of VMD.
+    """
     def __init__(self, frame_interpolation: dict):
+        """
+        :param frame_interpolation: {track_name: value}
+        """
         self.poses = dict()
 
         for track_name, value in frame_interpolation.items():
@@ -31,10 +37,17 @@ class FramePoseData:
 
 
 class AnimationClip:
+    """
+    Animation sequence that a VMD file describes.
+    """
     def __init__(self, tracks: List[AnimationTrack]):
         self.tracks = tracks
 
     def get_frame_pose_data(self, t: float) -> FramePoseData:
+        """
+        :param t: timestamp
+        :return: current pose
+        """
         frame_interpolation = dict()
 
         for track in self.tracks:
@@ -62,7 +75,11 @@ class AnimationClipBuilder:
     def reset(self):
         self.tracks = []
 
-    def __build_skeletal_animation(self, vmd, skeleton: Skeleton):
+    def __build_skeletal_animation(self, vmd: str, skeleton: Skeleton):
+        """
+        :param vmd:
+        :param skeleton:
+        """
         bones = skeleton.bones
         bone_dict_name = dict()
         motions = dict()
@@ -121,7 +138,11 @@ class AnimationClipBuilder:
             tracks.append(SkeletalTrack(f"{key_name}.quaternion", times, rotations, r_interpolations, self.interpolation_method))
         self.tracks += tracks
 
-    def __build_morph_animation(self, vmd, geometry: Geometry):
+    def __build_morph_animation(self, vmd: str, geometry: Geometry):
+        """
+        :param vmd:
+        :param geometry:
+        """
         tracks = []
         morphs = dict()
 
@@ -151,7 +172,13 @@ class AnimationClipBuilder:
                 times, values))
         self.tracks += tracks
 
-    def from_vmd_and_skeleton(self, vmd, geometry: Geometry, skeleton: Skeleton):
+    def from_vmd_and_skeleton(self, vmd: str, geometry: Geometry, skeleton: Skeleton):
+        """
+        :param vmd:
+        :param geometry:
+        :param skeleton:
+        :return: animation clip corresponding to VMD file
+        """
         self.reset()
         self.__build_skeletal_animation(vmd, skeleton)
         self.__build_morph_animation(vmd, geometry)

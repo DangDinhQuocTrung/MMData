@@ -9,11 +9,17 @@ import mmdata.utils.pmx_utils as pmx_utils
 from PIL import Image, ImageOps
 from mmdata.animation.geometry import Geometry
 from mmdata.animation.skeleton import Skeleton
-from mmdata.animation.animation_clip import AnimationClipBuilder
+from mmdata.animation.animation_clip import AnimationClipBuilder, FramePoseData
 from mmdata.utils import quaternion_utils
 
 
-def get_default_weight(deform, j):
+def get_default_weight(deform, j: int):
+    """
+    Get weight if there is not any info.
+    :param deform:
+    :param j:
+    :return: weight
+    """
     if j == 0:
         return 1.0
     elif j == 1 and hasattr(deform, "weight0"):
@@ -22,7 +28,11 @@ def get_default_weight(deform, j):
 
 
 class Animator:
-    def __init__(self, pmx_path, vmd_path):
+    """
+    Animator takes in a PMX file and a VMD file.
+    Given a timestamp, it poses the PMX model with the current VMD pose.
+    """
+    def __init__(self, pmx_path: str, vmd_path: str):
         self.character_dir = os.path.dirname(pmx_path)
         self.character_name = os.path.basename(self.character_dir).replace(" ", "_")
         # build skeleton
@@ -34,7 +44,7 @@ class Animator:
         vmd = pymeshio.vmd.reader.read_from_file(vmd_path)
         self.animation = AnimationClipBuilder().from_vmd_and_skeleton(vmd, self.geometry, self.skeleton)
 
-    def __pose_skeleton_in_frame(self, pose_data, accumulative=False):
+    def __pose_skeleton_in_frame(self, pose_data: FramePoseData, accumulative=False):
         bone_name_dict = dict()
         self.skeleton.rest_pose()
 
@@ -69,7 +79,7 @@ class Animator:
         self.skeleton.update_matrix_world()
         self.skeleton.update_bone_matrices()
 
-    def __pose_vertices_with_skeleton(self, vertices):
+    def __pose_vertices_with_skeleton(self, vertices: np.ndarray):
         bone_matrices = self.skeleton.bone_matrices
         morph_target_influences = self.geometry.morph_target_influences
         morph_positions = self.geometry.morph_positions
@@ -107,7 +117,7 @@ class Animator:
         vertices[:, 1] = vertices[:, 1] - 10.0
         return vertices
 
-    def copy_textures(self, texture_names, output_dir):
+    def copy_textures(self, texture_names: [str], output_dir: str):
         visited_textures = set()
         for texture_name in texture_names:
             texture_path = os.path.join(self.character_dir, texture_name)
@@ -122,6 +132,12 @@ class Animator:
         return
 
     def animate(self, timestamp: float, output_dir: str):
+        """
+        Build a OBJ that represents the PMX model in current pose.
+        :param timestamp: of VMD
+        :param output_dir: where OBJ and textures are stored
+        :return: mesh in OBJ format and textures
+        """
         vertices = self.geometry.vertices.copy()
         # capture model in animation
         if timestamp > 0.0:

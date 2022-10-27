@@ -17,7 +17,10 @@ from mmdata.renderer.camera import Camera
 
 
 class Renderer:
-    def __init__(self, config, output_dir):
+    """
+    Render mesh to images with OpenGL.
+    """
+    def __init__(self, config: dict, output_dir: str):
         self.config = config
         self.output_dir = output_dir
 
@@ -63,7 +66,11 @@ class Renderer:
             )
         return cams
 
-    def render_mesh(self, input_dir):
+    def render_mesh(self, input_dir: str):
+        """
+        Render OBJ mesh to images.
+        :param input_dir: contains OBJ and texture files.
+        """
         input_name = os.path.basename(input_dir)
         output_dir = os.path.join(self.output_dir, input_name)
 
