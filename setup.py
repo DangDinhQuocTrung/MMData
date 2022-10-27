@@ -75,7 +75,7 @@ class DeployCommand(Command):
 
 setup_requires = []
 
-install_requires = read_requirements()
+install_requires = ["git+https://github.com/DangDinhQuocTrung/pymeshio.git"]
 print(install_requires)
 
 tests_requires = [
