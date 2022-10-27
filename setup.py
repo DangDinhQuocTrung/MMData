@@ -100,7 +100,7 @@ setup(
     description="A utility tool pose an MMD model and generate massive training data for 3D mesh reconstruction.",
     long_description=read_readme(),
     long_description_content_type="text/markdown",
-    url="https://github.com/Cinnamon/gpucop",
+    url="https://github.com/DangDinhQuocTrung/MMData",
     author="DangDinhQuocTrung",
     author_email="ddqtrung@gmail.com",
     keywords="mmd mesh pmx vmd reconstruction",
@@ -114,7 +114,7 @@ setup(
     setup_requires=setup_requires,
     tests_require=tests_requires,
     entry_points={
-        "console_scripts": ["gpucop=gpucop:main"],
+        "console_scripts": ["mmdata=mmdata:main"],
     },
     cmdclass={
         "deploy": DeployCommand,
