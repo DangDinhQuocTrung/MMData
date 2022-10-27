@@ -108,7 +108,7 @@ setup(
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 3",
     ],
-    packages=find_packages("mmdata"),
+    packages=find_packages(),
     install_requires=install_requires,
     extras_require={"test": tests_requires},
     setup_requires=setup_requires,
