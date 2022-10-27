@@ -76,6 +76,7 @@ class DeployCommand(Command):
 setup_requires = []
 
 install_requires = read_requirements()
+print(install_requires)
 
 tests_requires = [
     "mockito>=1.2.1",
