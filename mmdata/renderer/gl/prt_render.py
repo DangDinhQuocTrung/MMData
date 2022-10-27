@@ -1,6 +1,4 @@
 import numpy as np
-import random
-
 from .framework import *
 from .cam_render import CamRender
 

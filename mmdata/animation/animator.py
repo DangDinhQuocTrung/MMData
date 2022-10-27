@@ -1,7 +1,6 @@
 import os
 import json
 import numpy as np
-import trimesh
 import pymeshio.pmx.reader
 import pymeshio.vmd.reader
 import mmdata.animation.solvers as solvers
@@ -11,7 +10,7 @@ from PIL import Image, ImageOps
 from mmdata.animation.geometry import Geometry
 from mmdata.animation.skeleton import Skeleton
 from mmdata.animation.animation_clip import AnimationClipBuilder
-from mmdata.utils import quaternion_utils, mesh_utils
+from mmdata.utils import quaternion_utils
 
 
 def get_default_weight(deform, j):
@@ -145,22 +144,3 @@ class Animator:
             file.write(mtl_output)
         self.copy_textures(texture_names, output_dir)
         json.dump(mat_dict, open(os.path.join(output_dir, "material.json"), "w+", encoding="utf-8"), indent=4, ensure_ascii=False)
-
-
-def main():
-    # Builder
-    output_dir = "/home/tyler/work/data/mmdata/mesh_output"
-    animator = Animator(
-        "/home/tyler/work/data/mmdata/test_data/Amber/Amber.pmx",
-        "/home/tyler/work/data/mmdata/wavefile_v2.vmd")
-
-    output_dir = os.path.join(output_dir, f"Amber_step_50_model")
-    if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
-    animator.animate(50, output_dir)
-    # scene = trimesh.load(os.path.join(output_dir, "Amber.obj"))
-    # mesh_utils.display_mesh(scene)
-
-
-if __name__ == "__main__":
-    main()

@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 from mmdata.animation.interpolation import InterpolationMethod
 
 
-
 class AnimationTrack(ABC):
     def __init__(self, name, times, values):
         self.name = name

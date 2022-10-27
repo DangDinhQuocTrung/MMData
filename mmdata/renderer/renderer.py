@@ -64,10 +64,9 @@ class Renderer:
         return cams
 
     def render_mesh(self, input_dir):
-        input_name = os.path.splitext(os.path.basename(input_dir))[0]
+        input_name = os.path.basename(input_dir)
         output_dir = os.path.join(self.output_dir, input_name)
 
-        os.makedirs(output_dir, exist_ok=True)
         os.makedirs(output_dir, exist_ok=True)
         os.makedirs(os.path.join(output_dir, "color"), exist_ok=True)
         os.makedirs(os.path.join(output_dir, "color_uv"), exist_ok=True)

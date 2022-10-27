@@ -1,3 +1,11 @@
-numpy
+natsort
+tqdm
+numpy>=1.21.0
+scipy>=1.7.0
+opencv-python==3.4.16.57
+Pillow>=8.4.0
 trimesh==3.9.35
-pymeshio
+git+https://github.com/DangDinhQuocTrung/pymeshio.git
+git+https://github.com/jamesbowman/openexrpython.git
+pyexr>=0.3.0
+PyOpenGL>=3.1.0

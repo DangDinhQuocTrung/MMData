@@ -1,7 +1,7 @@
 import numpy as np
 from typing import List
 from mmdata.animation.animation_track import AnimationTrack, SkeletalTrack, MorphTrack
-from mmdata.animation.interpolation import InterpolationMethod, BezierInterpolationMethod
+from mmdata.animation.interpolation import BezierInterpolationMethod
 from mmdata.animation.geometry import Geometry
 from mmdata.animation.skeleton import Skeleton
 
