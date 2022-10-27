@@ -1,4 +1,5 @@
 import os
+import pathlib
 import glob
 import math
 import json
@@ -10,6 +11,7 @@ import tqdm
 import pyexr
 import mmdata.utils.mesh_utils as mesh_utils
 
+from typing import Union
 from PIL import Image
 from mmdata.renderer.gl.init_gl import initialize_GL_context
 from mmdata.renderer.gl.prt_render import PRTRender
@@ -20,7 +22,7 @@ class Renderer:
     """
     Render mesh to images with OpenGL.
     """
-    def __init__(self, config: dict, output_dir: str):
+    def __init__(self, config: dict, output_dir: Union[str, pathlib.Path]):
         self.config = config
         self.output_dir = output_dir
 
@@ -66,7 +68,7 @@ class Renderer:
             )
         return cams
 
-    def render_mesh(self, input_dir: str):
+    def render_mesh(self, input_dir: Union[str, pathlib.Path]):
         """
         Render OBJ mesh to images.
         :param input_dir: contains OBJ and texture files.

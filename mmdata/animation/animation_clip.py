@@ -75,7 +75,7 @@ class AnimationClipBuilder:
     def reset(self):
         self.tracks = []
 
-    def __build_skeletal_animation(self, vmd: str, skeleton: Skeleton):
+    def __build_skeletal_animation(self, vmd, skeleton: Skeleton):
         """
         :param vmd:
         :param skeleton:
@@ -138,7 +138,7 @@ class AnimationClipBuilder:
             tracks.append(SkeletalTrack(f"{key_name}.quaternion", times, rotations, r_interpolations, self.interpolation_method))
         self.tracks += tracks
 
-    def __build_morph_animation(self, vmd: str, geometry: Geometry):
+    def __build_morph_animation(self, vmd, geometry: Geometry):
         """
         :param vmd:
         :param geometry:
@@ -172,7 +172,7 @@ class AnimationClipBuilder:
                 times, values))
         self.tracks += tracks
 
-    def from_vmd_and_skeleton(self, vmd: str, geometry: Geometry, skeleton: Skeleton):
+    def from_vmd_and_skeleton(self, vmd, geometry: Geometry, skeleton: Skeleton):
         """
         :param vmd:
         :param geometry:

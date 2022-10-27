@@ -1,4 +1,5 @@
 import os
+import pathlib
 import json
 import numpy as np
 import pymeshio.pmx.reader
@@ -6,6 +7,7 @@ import pymeshio.vmd.reader
 import mmdata.animation.solvers as solvers
 import mmdata.utils.pmx_utils as pmx_utils
 
+from typing import Union
 from PIL import Image, ImageOps
 from mmdata.animation.geometry import Geometry
 from mmdata.animation.skeleton import Skeleton
@@ -32,7 +34,7 @@ class Animator:
     Animator takes in a PMX file and a VMD file.
     Given a timestamp, it poses the PMX model with the current VMD pose.
     """
-    def __init__(self, pmx_path: str, vmd_path: str):
+    def __init__(self, pmx_path: Union[str, pathlib.Path], vmd_path: Union[str, pathlib.Path]):
         self.character_dir = os.path.dirname(pmx_path)
         self.character_name = os.path.basename(self.character_dir).replace(" ", "_")
         # build skeleton
@@ -117,7 +119,7 @@ class Animator:
         vertices[:, 1] = vertices[:, 1] - 10.0
         return vertices
 
-    def copy_textures(self, texture_names: [str], output_dir: str):
+    def copy_textures(self, texture_names: [str], output_dir: Union[str, pathlib.Path]):
         visited_textures = set()
         for texture_name in texture_names:
             texture_path = os.path.join(self.character_dir, texture_name)
@@ -131,7 +133,7 @@ class Animator:
                 texture_image.save(new_texture_path, quality=100)
         return
 
-    def animate(self, timestamp: float, output_dir: str):
+    def animate(self, timestamp: float, output_dir: Union[str, pathlib.Path]):
         """
         Build a OBJ that represents the PMX model in current pose.
         :param timestamp: of VMD

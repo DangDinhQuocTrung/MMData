@@ -26,9 +26,9 @@ Examples of mesh reconstruction models are PIFu and PaMIR.
 For more information, please visit https://github.com/DangDinhQuocTrung/MMData.
 
 To pose a PMX model with a VMD file, use:
-    mmdata pose -p ./model.pmx -v ./motion.vmd -t 50.0 -o ./mesh_output
+    mmdata pose -p ./model.pmx -v ./motion.vmd -t 10.0 -o ./mesh_output
 To generate mesh reconstruction training data, use:
-    mmdata gen -p ./pmx_input -v ./motion.vmd -t 50.0 -m ./mesh_output -i ./image_output
+    mmdata gen -p ./pmx_input -v ./motion.vmd -t 10.0 -m ./mesh_output -i ./image_output
     """
     parser = argparse.ArgumentParser(prog="mmdata", description=desc, formatter_class=argparse.RawTextHelpFormatter)
     subparsers = parser.add_subparsers(help="commands", dest="command")
@@ -151,5 +151,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    # document
     main(parse_arguments(sys.argv[1:]))

@@ -1,10 +1,12 @@
 import os
+import pathlib
 import math
 import pickle
 import numpy as np
 import trimesh
 import mmdata.utils.mesh_utils as mesh_utils
 import mmdata.utils.prt_utils as prt_utils
+from typing import Union
 
 
 class Preprocessor:
@@ -17,7 +19,7 @@ class Preprocessor:
         self.n = n
         self.order = order
 
-    def compute_prt(self, mesh_path: str):
+    def compute_prt(self, mesh_path: Union[str, pathlib.Path]):
         """
         :param mesh_path:
         :return: PRT file
@@ -93,7 +95,7 @@ class Preprocessor:
                 file.write("%s\n" % line)
         return
 
-    def normalize(self, mesh_path: str):
+    def normalize(self, mesh_path: Union[str, pathlib.Path]):
         """
         Normalize then save the mesh.
         :param mesh_path:
@@ -116,7 +118,7 @@ class Preprocessor:
         scale = 1.0 / scale_inv * (0.75 + 0.5 * 0.15)
         self.__save_normalized_mesh(mesh_path, scale, offset[0])
 
-    def process(self, mesh_path: str):
+    def process(self, mesh_path: Union[str, pathlib.Path]):
         """
         :param mesh_path:
         """
