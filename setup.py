@@ -80,7 +80,7 @@ install_requires = [
     "openexr",
     "pyexr",
     "PyOpenGL",
-    r"https://github.com/DangDinhQuocTrung/pymeshio/master",
+    "pymeshio@git+https://github.com/DangDinhQuocTrung/pymeshio.git",
 ]
 
 tests_requires = [
