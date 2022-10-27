@@ -4,7 +4,7 @@
 import sys
 import os
 import re
-from setuptools import setup, Command
+from setuptools import setup, Command, find_packages
 
 
 __PATH__ = os.path.abspath(os.path.dirname(__file__))
@@ -108,7 +108,7 @@ setup(
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 3",
     ],
-    packages=["mmdata"],
+    packages=find_packages("mmdata"),
     install_requires=install_requires,
     extras_require={"test": tests_requires},
     setup_requires=setup_requires,
