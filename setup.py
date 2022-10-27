@@ -24,12 +24,6 @@ def read_version():
     raise RuntimeError("Unable to find __version__ string")
 
 
-def read_requirements():
-    with open(os.path.join(__PATH__, "requirements.txt")) as f:
-        return f.read().split("\n")[:-1]
-    pass
-
-
 __version__ = read_version()
 
 
@@ -75,8 +69,19 @@ class DeployCommand(Command):
 
 setup_requires = []
 
-install_requires = ["git+https://github.com/DangDinhQuocTrung/pymeshio.git"]
-print(install_requires)
+install_requires = [
+    "natsort",
+    "tqdm",
+    "numpy",
+    "scipy",
+    "opencv-python==3.4.16.57",
+    "Pillow",
+    "trimesh==3.9.35",
+    "openexr",
+    "pyexr",
+    "PyOpenGL",
+    "https://github.com/DangDinhQuocTrung/pymeshio/master",
+]
 
 tests_requires = [
     "mockito>=1.2.1",
