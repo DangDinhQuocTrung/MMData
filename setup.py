@@ -120,7 +120,7 @@ setup(
         "deploy": DeployCommand,
     },
     include_package_data=True,
-    package_data={"": ["*.fs", "*.vs"]},
+    package_data={"mmdata": ["renderer/gl/data/*"]},
     zip_safe=False,
     python_requires=">=3.5",
 )
