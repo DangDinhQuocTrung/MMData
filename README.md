@@ -15,9 +15,10 @@ I used this tool to train a mesh reconstruction model for Japanese anime charact
 
 
 ## Installation
-Firstly, we need to install OpenGL:
+Firstly, we need to install necessary packages:
 ```
-sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
+sudo apt update
+sudo apt install gcc build-essential libopenexr-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev
 ```
 Then, install the Python libraries in the `reuirements.txt` file:
 ```
