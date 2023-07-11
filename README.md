@@ -18,7 +18,7 @@ I used this tool to train a mesh reconstruction model for Japanese anime charact
 Firstly, we need to install necessary packages:
 ```
 sudo apt update
-sudo apt install gcc build-essential libopenexr-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev
+sudo apt install gcc build-essential libopenexr-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev openexr
 ```
 Then, install the Python libraries in the `reuirements.txt` file:
 ```

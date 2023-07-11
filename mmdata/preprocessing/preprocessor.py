@@ -70,7 +70,7 @@ class Preprocessor:
             out_dict[key] = {"bounce0": prt, "face": face}
         return out_dict
 
-    def __save_normalized_mesh(self, mesh_path, scale, offset):
+    def _save_normalized_mesh(self, mesh_path, scale, offset):
         mesh_lines = []
         new_mesh_lines = []
 
@@ -116,7 +116,7 @@ class Preprocessor:
         # compute scale
         scale_inv = np.max(max_xyz - min_xyz)
         scale = 1.0 / scale_inv * (0.75 + 0.5 * 0.15)
-        self.__save_normalized_mesh(mesh_path, scale, offset[0])
+        self._save_normalized_mesh(mesh_path, scale, offset[0])
 
     def process(self, mesh_path: Union[str, pathlib.Path]):
         """

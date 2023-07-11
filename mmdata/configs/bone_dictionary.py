@@ -1,6 +1,6 @@
 
 
-bone_jp_to_eng_converter = {
+bone_jp_eng_dictionary = {
     "上半身": "Torso",
     "左手首": "Left-Hand",
     "右手首": "Right-Hand",
@@ -19,6 +19,7 @@ bone_jp_to_eng_converter = {
     "左目": "Left-Eye",
     "右目": "Right-Eye",
 }
+bone_jp_eng_dictionary.update({v: k for (k, v) in bone_jp_eng_dictionary.items()})
 
 open_pose_format = {
     "Head": 0,

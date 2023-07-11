@@ -39,7 +39,7 @@ class Renderer:
             focal=config["cam_f"], near=config["cam_near"], far=config["cam_far"])
         self.cam.sanity_check()
 
-    def __generate_cameras(self):
+    def _generate_cameras(self):
         cams = []
         target = [0, 0, 0]
         up = [0, 1, 0]
@@ -130,7 +130,7 @@ class Renderer:
                 prt, face_prt, tan, bitan, mat_name=key_name)
             render_uv_dict[text_name].set_albedo(texture_image, mat_name=key_name)
 
-        cam_params = self.__generate_cameras()
+        cam_params = self._generate_cameras()
         sh_list = []
         uv_pos_dict = dict()
 

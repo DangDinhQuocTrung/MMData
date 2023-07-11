@@ -77,9 +77,10 @@ install_requires = [
     "opencv-python==3.4.16.57",
     "Pillow",
     "trimesh==3.9.35",
-    "openexr",
+    "openexr==1.3.2",
     "pyexr",
     "PyOpenGL",
+    "pyglet==1.5.27",
     "pymeshio@git+https://github.com/DangDinhQuocTrung/pymeshio.git",
 ]
 
@@ -106,7 +107,7 @@ setup(
     keywords="mmd mesh pmx vmd reconstruction",
     classifiers=[
         "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
     ],
     packages=find_packages(),
     install_requires=install_requires,
@@ -122,5 +123,5 @@ setup(
     include_package_data=True,
     package_data={"mmdata": ["renderer/gl/data/*"]},
     zip_safe=False,
-    python_requires=">=3.5",
+    python_requires=">=3.8",
 )

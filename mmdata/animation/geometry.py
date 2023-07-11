@@ -103,7 +103,7 @@ class Geometry:
             parent_grant_entry["children"].append(grant_entry)
 
         # sort grants from parent to children
-        self.__traverse_grant(root_entry)
+        self._traverse_grant(root_entry)
 
         # morph
         self.morph_targets = []
@@ -143,7 +143,7 @@ class Geometry:
 
         self.morph_target_influences = np.array(self.morph_target_influences, dtype=np.float32)
 
-    def __traverse_grant(self, entry):
+    def _traverse_grant(self, entry):
         if entry["grant_param"] is not None:
             self.grants.append(entry["grant_param"])
             self.bones[entry["grant_param"]["index"]]["grant"] = entry["grant_param"]
@@ -151,7 +151,7 @@ class Geometry:
 
         for child in entry["children"]:
             if not child["visited"]:
-                self.__traverse_grant(child)
+                self._traverse_grant(child)
         return
 
     def get_bone_hierarchy(self) -> ([Bone], [Bone]):

@@ -10,10 +10,10 @@ class GrantSolver:
 
     def update(self):
         for grant in self.grants:
-            self.__update_one(grant)
+            self._update_one(grant)
         return
 
-    def __update_one(self, grant):
+    def _update_one(self, grant):
         bone = self.skeleton.bones[grant["index"]]
         parent_bone = self.skeleton.bones[grant["parent_index"]]
 
@@ -25,10 +25,10 @@ class GrantSolver:
                 # TODO: no implementation
                 pass
             if grant["affect_rotation"]:
-                self.__add_grant_rotation(bone, parent_bone.quaternion, grant["ratio"])
+                self._add_grant_rotation(bone, parent_bone.quaternion, grant["ratio"])
         return
 
-    def __add_grant_rotation(self, bone, q, ratio):
+    def _add_grant_rotation(self, bone, q, ratio):
         temp_q = np.array([0.0, 0.0, 0.0, 1.0])
         temp_q = quaternion_utils.slerp(temp_q, q, ratio)
         bone.quaternion = quaternion_utils.multiply_quaternions(bone.quaternion, temp_q)
@@ -41,10 +41,10 @@ class IkSolver:
 
     def update(self):
         for ik in self.iks:
-            self.__update_one(ik)
+            self._update_one(ik)
         return
 
-    def __update_one(self, ik):
+    def _update_one(self, ik):
         effector = self.skeleton.bones[ik["effector"]]
         target = self.skeleton.bones[ik["target"]]
 

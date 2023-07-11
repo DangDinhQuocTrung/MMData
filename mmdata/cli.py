@@ -6,7 +6,7 @@ import logging
 import trimesh
 import mmdata.utils.mesh_utils as mesh_utils
 from natsort import natsorted
-from mmdata.animation.animator import Animator
+from mmdata.animation.animator import Animator, Poser
 from mmdata.preprocessing.preprocessor import Preprocessor
 from mmdata.renderer.renderer import Renderer
 from mmdata.configs.configs import render_config
@@ -35,7 +35,8 @@ To generate mesh reconstruction training data, use:
 
     pose_parser = subparsers.add_parser("pose")
     pose_parser.add_argument("--pmx", "-p", required=True, type=str, help="path to the PMX model file")
-    pose_parser.add_argument("--vmd", "-v", required=True, type=str, help="path to the VMD motion file")
+    pose_parser.add_argument("--vmd", "-m", type=str, help="path to the VMD motion file")
+    pose_parser.add_argument("--vpd", "-v", type=str, help="path to the VPD motion file")
     pose_parser.add_argument("--timestamp", "-t", required=True, type=float, help="timestamp in VMD file")
     pose_parser.add_argument("--output_dir", "-o", type=str, default=".", help="path to output directory")
     pose_parser.add_argument("--no_display", action="store_true", help="flag to prevent displaying the pose output")
@@ -55,7 +56,10 @@ def pose_pmx_model(args):
 
     # init the Animator
     try:
-        animator = Animator(args.pmx, args.vmd)
+        if args.vmd is not None:
+            animator = Animator(args.pmx, args.vmd)
+        else:
+            animator = Poser(args.pmx, args.vpd)
     except FileNotFoundError:
         logger.error("PMX/VMD file does not exist!")
         return

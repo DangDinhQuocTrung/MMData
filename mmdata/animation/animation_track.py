@@ -28,13 +28,13 @@ class SkeletalTrack(AnimationTrack):
             interpolations: np.ndarray, interpolation_method: InterpolationMethod):
         assert values.shape[0] / times.shape[0] == 1.0
         assert interpolations.shape[0] % values.shape[0] == 0
-        times, values, interpolations = self.__process_interpolations(times, values, interpolations)
+        times, values, interpolations = self._process_interpolations(times, values, interpolations)
 
         super(SkeletalTrack, self).__init__(name, times, values)
         self.interpolations = interpolations
         self.interpolation_method = interpolation_method
 
-    def __process_interpolations(self, times: np.ndarray, values: np.ndarray, interpolations: np.ndarray):
+    def _process_interpolations(self, times: np.ndarray, values: np.ndarray, interpolations: np.ndarray):
         """
         Fix the interpolation timestamps to correct order.
         :param times:

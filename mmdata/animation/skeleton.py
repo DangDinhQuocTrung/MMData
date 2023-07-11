@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import mmdata.utils.quaternion_utils as quaternion_utils
-from mmdata.configs.bone_dictionary import bone_jp_to_eng_converter
+from mmdata.configs.bone_dictionary import bone_jp_eng_dictionary
 
 
 class Bone:
@@ -139,11 +139,11 @@ class Skeleton:
         bone_vertices = []
 
         for bone in self.bones:
-            if bone.name in bone_jp_to_eng_converter:
+            if bone.name in bone_jp_eng_dictionary:
                 position, _, _ = bone.decompose_matrix_world()
                 position = [position[0], position[1], position[2]]
                 bone_vertices.append({
-                    "name": bone_jp_to_eng_converter.get(bone.name, ""),
+                    "name": bone_jp_eng_dictionary.get(bone.name, ""),
                     "position": position,
                 })
         return bone_vertices

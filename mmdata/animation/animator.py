@@ -1,18 +1,22 @@
 import os
 import pathlib
 import json
+import io
+from typing import Union
+
 import numpy as np
+import pymeshio.common
 import pymeshio.pmx.reader
 import pymeshio.vmd.reader
+import pymeshio.vpd
 import mmdata.animation.solvers as solvers
 import mmdata.utils.pmx_utils as pmx_utils
-
-from typing import Union
 from PIL import Image, ImageOps
 from mmdata.animation.geometry import Geometry
 from mmdata.animation.skeleton import Skeleton
 from mmdata.animation.animation_clip import AnimationClipBuilder, FramePoseData
 from mmdata.utils import quaternion_utils
+from mmdata.configs.bone_dictionary import bone_jp_eng_dictionary
 
 
 def get_default_weight(deform, j: int):
@@ -29,12 +33,8 @@ def get_default_weight(deform, j: int):
     return 0.0
 
 
-class Animator:
-    """
-    Animator takes in a PMX file and a VMD file.
-    Given a timestamp, it poses the PMX model with the current VMD pose.
-    """
-    def __init__(self, pmx_path: Union[str, pathlib.Path], vmd_path: Union[str, pathlib.Path]):
+class BasePoser:
+    def __init__(self, pmx_path: Union[str, pathlib.Path]):
         self.character_dir = os.path.dirname(pmx_path)
         self.character_name = os.path.basename(self.character_dir).replace(" ", "_")
         # build skeleton
@@ -42,11 +42,7 @@ class Animator:
         self.geometry = Geometry(self.pmx)
         self.skeleton = Skeleton(*self.geometry.get_bone_hierarchy())
 
-        # read animation clip
-        vmd = pymeshio.vmd.reader.read_from_file(vmd_path)
-        self.animation = AnimationClipBuilder().from_vmd_and_skeleton(vmd, self.geometry, self.skeleton)
-
-    def __pose_skeleton_in_frame(self, pose_data: FramePoseData, accumulative=False):
+    def _pose_skeleton_in_frame(self, pose_data: FramePoseData, accumulative=False):
         bone_name_dict = dict()
         self.skeleton.rest_pose()
 
@@ -81,7 +77,7 @@ class Animator:
         self.skeleton.update_matrix_world()
         self.skeleton.update_bone_matrices()
 
-    def __pose_vertices_with_skeleton(self, vertices: np.ndarray):
+    def _pose_vertices_with_skeleton(self, vertices: np.ndarray):
         bone_matrices = self.skeleton.bone_matrices
         morph_target_influences = self.geometry.morph_target_influences
         morph_positions = self.geometry.morph_positions
@@ -133,6 +129,21 @@ class Animator:
                 texture_image.save(new_texture_path, quality=100)
         return
 
+
+class Animator(BasePoser):
+    """
+    Animator takes in a PMX file and a VMD file.
+    Given a timestamp, it poses the PMX model with the current VMD pose.
+    """
+    def __init__(
+            self,
+            pmx_path: Union[str, pathlib.Path],
+            vmd_path: Union[str, pathlib.Path, None] = None,
+    ):
+        super(Animator, self).__init__(pmx_path)
+        vmd = pymeshio.vmd.reader.read_from_file(vmd_path)
+        self.animation = AnimationClipBuilder().from_vmd_and_skeleton(vmd, self.geometry, self.skeleton)
+
     def animate(self, timestamp: float, output_dir: Union[str, pathlib.Path]):
         """
         Build a OBJ that represents the PMX model in current pose.
@@ -144,8 +155,86 @@ class Animator:
         # capture model in animation
         if timestamp > 0.0:
             frame_pose_data = self.animation.get_frame_pose_data(timestamp)
-            self.__pose_skeleton_in_frame(frame_pose_data, accumulative=False)
-            vertices = self.__pose_vertices_with_skeleton(vertices)
+            # write_json(frame_pose_data)
+            self._pose_skeleton_in_frame(frame_pose_data, accumulative=False)
+            vertices = self._pose_vertices_with_skeleton(vertices)
+
+        # write object mesh
+        obj_content = pmx_utils.pmx_to_obj(self.pmx, self.geometry, vertices)
+        with open(os.path.join(output_dir, f"{self.character_name}.obj"), "w+") as file:
+            file.write(obj_content)
+
+        # write bone
+        bone_vertices = self.skeleton.get_bone_vertices()
+        json.dump(bone_vertices, open(os.path.join(output_dir, "bone_vertices.json"), "w+", encoding="utf-8"), indent=4, ensure_ascii=False)
+
+        # write materials
+        mat_dict, mtl_output, texture_names = pmx_utils.pmx_to_mtl(self.pmx)
+        with open(os.path.join(output_dir, "material.mtl"), "w+") as file:
+            file.write(mtl_output)
+        self.copy_textures(texture_names, output_dir)
+        json.dump(mat_dict, open(os.path.join(output_dir, "material.json"), "w+", encoding="utf-8"), indent=4, ensure_ascii=False)
+
+
+class Poser(BasePoser):
+    """
+    Animator takes in a PMX file and a VMD file.
+    Given a timestamp, it poses the PMX model with the current VMD pose.
+    """
+    def __init__(
+            self,
+            pmx_path: Union[str, pathlib.Path],
+            vpd_path: Union[str, pathlib.Path],
+    ):
+        super(Poser, self).__init__(pmx_path)
+        self.vpd_frame_pose = self._load_pose_from_vpd(vpd_path)
+
+    def _load_pose_from_vpd(self, vpd_path: Union[str, pathlib.Path]):
+
+        if vpd_path.endswith(".vpd"):
+            # load VPD
+            vpd_loader = pymeshio.vpd.VPDLoader()
+            vpd_loader.load(vpd_path, io.BytesIO(pymeshio.common.readall(vpd_path)), 8628)
+            vpd_loader.process()
+
+            for pose in vpd_loader.pose:
+                pos, q = pose["pos"], pose["q"]
+                pose["pos"] = np.array([pos.x, pos.y, pos.z])
+                pose["q"] = np.array([q.x, q.y, q.z, q.w])
+
+            vpd_pose = {
+                pose["name"]: {"pos": pose["pos"], "q": pose["q"]}
+                for pose in vpd_loader.pose
+            }
+
+        elif vpd_path.endswith(".json"):
+            # load JSON
+            vpd_pose = json.load(open(vpd_path))
+
+            vpd_pose = {
+                bone_jp_eng_dictionary[bone_name]: {
+                    "pos": np.array(bone_data["pos"]),
+                    "q": np.array(bone_data["q"]),
+                }
+                for bone_name, bone_data in vpd_pose.items()
+            }
+
+        else:
+            raise ValueError("File type not supported!")
+
+        return FramePoseData(vpd_pose)
+
+    def animate(self, timestamp: float, output_dir: Union[str, pathlib.Path]):
+        """
+        Build a OBJ that represents the PMX model in current pose.
+        :param timestamp:
+        :param output_dir: where OBJ and textures are stored
+        :return: mesh in OBJ format and textures
+        """
+        vertices = self.geometry.vertices.copy()
+        # pose model
+        self._pose_skeleton_in_frame(self.vpd_frame_pose, accumulative=False)
+        vertices = self._pose_vertices_with_skeleton(vertices)
 
         # write object mesh
         obj_content = pmx_utils.pmx_to_obj(self.pmx, self.geometry, vertices)

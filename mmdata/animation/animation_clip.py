@@ -10,11 +10,17 @@ class FramePoseData:
     """
     FramePoseData consists of pose data corresponding to one timestamp of VMD.
     """
-    def __init__(self, frame_interpolation: dict):
+    def __init__(self, poses: dict):
+        self.poses = poses
+
+
+class FramePoseDataBuilder:
+    @staticmethod
+    def from_frame_interpolation_dict(frame_interpolation: dict):
         """
         :param frame_interpolation: {track_name: value}
         """
-        self.poses = dict()
+        poses = dict()
 
         for track_name, value in frame_interpolation.items():
             start_index = track_name.find("[") + 1
@@ -22,18 +28,18 @@ class FramePoseData:
             bone_name = track_name[start_index:end_index]
             bone_name = int(bone_name) if bone_name.isdigit() else bone_name
 
-            if bone_name not in self.poses:
-                self.poses[bone_name] = dict()
+            if bone_name not in poses:
+                poses[bone_name] = dict()
 
             if isinstance(bone_name, int):
-                self.poses[bone_name]["influence"] = value
+                poses[bone_name]["influence"] = value
             elif "position" in track_name:
-                self.poses[bone_name]["pos"] = value
+                poses[bone_name]["pos"] = value
             elif "quaternion" in track_name:
-                self.poses[bone_name]["q"] = value
+                poses[bone_name]["q"] = value
             else:
                 raise ValueError("Invalid bone name!!")
-        return
+        return FramePoseData(poses)
 
 
 class AnimationClip:
@@ -63,7 +69,7 @@ class AnimationClip:
             frame_interpolation[track.name] = track.get_value(bigger_index - 1, bigger_index, t)
 
         # convert to VPD
-        return FramePoseData(frame_interpolation)
+        return FramePoseDataBuilder.from_frame_interpolation_dict(frame_interpolation)
 
 
 class AnimationClipBuilder:
@@ -75,7 +81,7 @@ class AnimationClipBuilder:
     def reset(self):
         self.tracks = []
 
-    def __build_skeletal_animation(self, vmd, skeleton: Skeleton):
+    def _build_skeletal_animation(self, vmd, skeleton: Skeleton):
         """
         :param vmd:
         :param skeleton:
@@ -138,7 +144,7 @@ class AnimationClipBuilder:
             tracks.append(SkeletalTrack(f"{key_name}.quaternion", times, rotations, r_interpolations, self.interpolation_method))
         self.tracks += tracks
 
-    def __build_morph_animation(self, vmd, geometry: Geometry):
+    def _build_morph_animation(self, vmd, geometry: Geometry):
         """
         :param vmd:
         :param geometry:
@@ -180,6 +186,6 @@ class AnimationClipBuilder:
         :return: animation clip corresponding to VMD file
         """
         self.reset()
-        self.__build_skeletal_animation(vmd, skeleton)
-        self.__build_morph_animation(vmd, geometry)
+        self._build_skeletal_animation(vmd, skeleton)
+        self._build_morph_animation(vmd, geometry)
         return AnimationClip(self.tracks)
